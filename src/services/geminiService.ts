@@ -59,8 +59,8 @@ export const generateArticleSection = async (
 
     ${isConclusion ? `
     KONTAK & CTA (Gunakan link berikut):
-    - Konsultasi teknis proyek: [Konsultasi Teknis](https://primatex.co.id/konsultasi/)
-    - Permintaan informasi harga: [Permintaan Harga](https://primatex.co.id/permintaan-harga/)
+    - Konsultasi teknis proyek: [Konsultasi Teknis](https://indogeotextile.com/konsultasi/)
+    - Permintaan informasi harga: [Permintaan Harga](https://indogeotextile.com/info-harga/)
     - Kontak WhatsApp langsung: [WhatsApp](https://wa.me/message/WSI7AS6VJ3SBH1)
     ` : ""}
 
