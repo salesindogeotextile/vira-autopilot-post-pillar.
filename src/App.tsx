@@ -191,7 +191,7 @@ export default function App() {
         const currentSheetName = (sheetNameRef.current || 'Pillar').trim();
         let scriptUrl = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
         if (!scriptUrl || scriptUrl === "YOUR_GOOGLE_SCRIPT_URL_HERE") {
-          scriptUrl = "https://script.google.com/macros/s/AKfycbyjab-WqLPdKkWDRkpPjGp471wOR82OHN7DfWNlp0bath-bC8vGgq6E5WLVejEeqpiKug/exec?module=pillar";
+          scriptUrl = "https://script.google.com/macros/s/AKfycbzFGa3BqOwYL8trwhHztOyVFGsCvRRIQ3sklJVYJYskgUhPgdd4OZhOTCvQqZN25fkhBQ/exec?module=pillar";
         }
 
         const params = new URLSearchParams();
@@ -292,7 +292,7 @@ export default function App() {
             const updateSheet = async (rowIndex: number, updateData: any) => {
               let scriptUrl = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
               if (!scriptUrl || scriptUrl === "YOUR_GOOGLE_SCRIPT_URL_HERE") {
-                scriptUrl = "https://script.google.com/macros/s/AKfycbyjab-WqLPdKkWDRkpPjGp471wOR82OHN7DfWNlp0bath-bC8vGgq6E5WLVejEeqpiKug/exec?module=pillar";
+                scriptUrl = "https://script.google.com/macros/s/AKfycbzFGa3BqOwYL8trwhHztOyVFGsCvRRIQ3sklJVYJYskgUhPgdd4OZhOTCvQqZN25fkhBQ/exec?module=pillar";
               }
 
               const payload = {
@@ -459,10 +459,10 @@ export default function App() {
                 try {
                   // Attempt to mark as error if possible
                   let scriptUrl = (import.meta.env.VITE_GOOGLE_SCRIPT_URL || "").trim();
-                  if (scriptUrl) {
                   if (!scriptUrl || scriptUrl === "YOUR_GOOGLE_SCRIPT_URL_HERE") {
-                    scriptUrl = "https://script.google.com/macros/s/AKfycbyjab-WqLPdKkWDRkpPjGp471wOR82OHN7DfWNlp0bath-bC8vGgq6E5WLVejEeqpiKug/exec?module=pillar";
+                    scriptUrl = "https://script.google.com/macros/s/AKfycbzFGa3BqOwYL8trwhHztOyVFGsCvRRIQ3sklJVYJYskgUhPgdd4OZhOTCvQqZN25fkhBQ/exec?module=pillar";
                   }
+                  if (scriptUrl) {
                     await fetch(`${scriptUrl}${scriptUrl.includes('?') ? '&' : '?' }action=updatePillar`, {
                       method: 'POST',
                       body: JSON.stringify({
@@ -627,7 +627,7 @@ export default function App() {
                 <span className="font-bold text-white">AutoPilot</span>
                 <span className="text-slate-400 font-normal ml-1.5 text-base">Post Pillar</span>
               </div>
-              <span className="text-red-500 font-bold text-lg tracking-tight leading-none">Vira</span>
+              <span className="text-red-500 font-bold text-lg tracking-tight leading-none">Vira - Indo</span>
             </div>
           </div>
 
