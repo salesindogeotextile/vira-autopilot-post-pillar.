@@ -405,13 +405,14 @@ export default function App() {
 
             const authString = btoa(`${wpUser}:${wpPass}`);
             const wpHeaders = {
-              'Authorization': `Basic ${authString}`
+              'Authorization': `Basic ${authString}`,
+              'X-HTTP-Authorization': `Basic ${authString}`
             };
 
             const categoryIds = await resolveWpTerms(task.kategori || 'Uncategorized', "categories", wpUrl, wpHeaders);
             const tagIds = await resolveWpTerms(parsedSeo.tag, "tags", wpUrl, wpHeaders);
 
-            const wpPayload = {
+            const wpPayload: any = {
               title: parsedSeo.judul,
               content: String(marked.parse(fullContent)),
               excerpt: parsedSeo.kutipan,
@@ -423,23 +424,63 @@ export default function App() {
                 _yoast_wpseo_title: parsedSeo.judul_seo,
                 _yoast_wpseo_metadesc: parsedSeo.meta_deskripsi,
                 _yoast_wpseo_focuskw: task.frasa_kunci,
+                _yoast_wpseo_is_cornerstone: "1",
                 rank_math_title: parsedSeo.judul_seo,
                 rank_math_description: parsedSeo.meta_deskripsi,
                 rank_math_focus_keyword: task.frasa_kunci,
+                rank_math_pillar_post: "on",
               }
             };
 
-            const wpRes = await fetch(`${wpUrl}/wp-json/wp/v2/posts`, {
+            let wpRes = await fetch(`${wpUrl}/wp-json/wp/v2/posts`, {
               method: 'POST',
               headers: { ...wpHeaders, 'Content-Type': 'application/json' },
               body: JSON.stringify(wpPayload)
             });
 
             if (!checkActive()) return;
+
+            // Robust Fallback: JIKA posting dengan meta ditolak (sering terjadi karena custom fields/metadata tidak teregistrasi di REST API WordPress), coba kirim ulang tanpa meta.
+            if (!wpRes.ok && wpPayload.meta) {
+              console.warn("Posting dengan meta gagal, mencoba kembali tanpa block metadata...");
+              const { meta, ...wpPayloadWithoutMeta } = wpPayload;
+              wpRes = await fetch(`${wpUrl}/wp-json/wp/v2/posts`, {
+                method: 'POST',
+                headers: { ...wpHeaders, 'Content-Type': 'application/json' },
+                body: JSON.stringify(wpPayloadWithoutMeta)
+              });
+            }
+
+            if (!checkActive()) return;
             
             if (!wpRes.ok) {
-              const wpError = await wpRes.json();
-              throw new Error(`Gagal posting WordPress: ${wpError.message || wpRes.statusText}`);
+              let wpError: any = {};
+              try {
+                wpError = await wpRes.json();
+              } catch (e) {
+                wpError = { message: wpRes.statusText };
+              }
+
+              const errMsg = wpError.message || '';
+              // Deteksi pesan error authorization / rest_cannot_create / permission denied
+              if (
+                wpRes.status === 401 || 
+                wpRes.status === 403 || 
+                errMsg.toLowerCase().includes('tidak diizinkan') || 
+                errMsg.toLowerCase().includes('unauthorized') || 
+                errMsg.toLowerCase().includes('cannot_create') || 
+                errMsg.toLowerCase().includes('not allowed')
+              ) {
+                throw new Error(
+                  `Gagal posting WordPress: Terjadi penolakan izin akses (${wpRes.status}).\n` +
+                  `Pastikan hal-hal berikut sudah benar:\n` +
+                  `1. Gunakan WORDPRESS APPLICATION PASSWORD (24 karakter berformat "xxxx xxxx xxxx xxxx xxxx xxxx", buat di halaman Edit Profil WordPress Anda), BUKAN password login akun biasa Anda.\n` +
+                  `2. Akun pengguna Anda di WordPress wajib memiliki role minimal Author, Editor, atau Administrator.\n` +
+                  `3. Beberapa provider hosting memblokir Authorization header standar. Tambahkan rule .htaccess WordPress Anda jika error tetap berlanjut.`
+                );
+              }
+              
+              throw new Error(`Gagal posting WordPress: ${errMsg || wpRes.statusText}`);
             }
 
             const wpData = await wpRes.json();
